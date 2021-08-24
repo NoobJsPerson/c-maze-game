@@ -1,4 +1,8 @@
-#include <stdio.h>                                        char randomChunk(){
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+char randomChunk(){
         return rand() % 2 ? '#' : '-';                    }
 void generateRandomMap(char map[5][13]){
         for(int i = 0; i < 4; i++){
@@ -8,6 +12,14 @@ void generateRandomMap(char map[5][13]){
 }
 void updateScene(int *coordinates, char map[5][13], char updateCode)
 {
+	struct winsize size;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+        if(size.ws_col < 12 || size.ws_row < 4)
+        {
+                printf("Your terminal window is to sm
+all please enlarge it\n");
+                return;
+        }
         static int score;
         static char direction;
         char action[1];
