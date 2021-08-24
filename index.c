@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <sys/ioctl.h>                               #include <unistd.h>                                  #include <stdlib.h>
 #include <time.h>
 char randomChunk(){
         int r = rand();
@@ -113,7 +111,18 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
         if(coordinates[0] == 0 && coordinates[1] == 0 || coordinates[0] == 0 && coordinates[1] == 11 || coordinates[0] == 4 && coordinates[1] == 0 || coordinates[0] == 4 && coordinates[1] == 11 )
         {
                 printf("\033[1;31mGame Over!\n\033[0mYour Score: %d",score);
-                printf("\n");
+                printf("\nRestart: r, Leave: l\n");
+                char b[1];
+                scanf("%s",b);
+                switch(*b)
+                {
+                        case 'r':
+                                score = 0;
+                                main();
+                                return;
+                        case 'l':
+                                return;
+                }
                 return;
         }
         printf("Score: %d",score);
