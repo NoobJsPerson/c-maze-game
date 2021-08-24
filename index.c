@@ -3,12 +3,14 @@
 #include <unistd.h>
 
 char randomChunk(){
-        return rand() % 2 ? '#' : '-';                    }
+        return rand() % 2 ? '#' : '-';                    
+}
 void generateRandomMap(char map[5][13]){
         for(int i = 0; i < 4; i++){
                 for(int j = 0; j < 11;j++){
-                        map[i][j] = randomChunk();                        }
-        }
+                        map[i][j] = randomChunk();
+		}
+	}
 }
 void updateScene(int *coordinates, char map[5][13], char updateCode)
 {
