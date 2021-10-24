@@ -1,10 +1,8 @@
 #include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
-_Bool isWindows = 1;
 #elif defined(__unix__)
 #include <sys/ioctl.h>
-_Bool isWindows = 0;
 #endif
 #include <unistd.h>
 #include <stdlib.h>
@@ -23,18 +21,17 @@ void generateRandomMap(char map[5][13]){
 void updateScene(int *coordinates, char map[5][13], char updateCode)
 {
 	int columns, rows;
-	if(isWindows)
-	{
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-    		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    		columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    		rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-	} else {
-		struct winsize size;
-		ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-		columns = size.ws_col;
-		rows = size.ws_row;
-	}
+	#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+    	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    	columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    	rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+	#elif defined(__unix__)
+	struct winsize size;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+	columns = size.ws_col;
+	rows = size.ws_row;
+	#endif
 	if(columns < 12 || rows < 4)
 	{
 		printf("Your terminal window is to small please enlarge it\n");
