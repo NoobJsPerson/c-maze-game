@@ -142,10 +142,11 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
 		printf("\033[1;31mGame Over!\n\033[0mYour Score: %d",score);
 		printf("\nRestart: r, Leave: any other character\n");
 		char b;
-		scanf("%s",&b);
+		b = getch();
 		switch(b)
 		{
 			case 'r':
+				printf("\033c");
 				score =  0;
 				action = '0';
 				coordinates[0] = 2;
