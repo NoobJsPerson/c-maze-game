@@ -2,11 +2,13 @@
 #ifdef _WIN32
 #include <windows.h>
 #elif defined(__unix__)
+#include <termios.h>
 #include <sys/ioctl.h>
 #endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#ifdef __unix__
 #include <termios.h>
 static struct termios old, new;
 char getch()
@@ -21,6 +23,10 @@ char getch()
   tcsetattr(0, TCSANOW, &old);
   return ch;
 }
+#elif defined(_WIN32)
+#include <conio.h>
+#endif
+
 char randomChunk(){
 	int r = rand();
 	return r % 2 ? '#' : '-';
@@ -40,13 +46,15 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
     	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     	columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     	rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+		printf("%i",columns);
+		printf("%i",rows);
 	#elif defined(__unix__)
 	struct winsize size;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
 	columns = size.ws_col;
 	rows = size.ws_row;
 	#endif
-	if(columns < 12 || rows < 4)
+	if(columns < 1 || rows < 1)
 	{
 		printf("Your terminal window is to small please enlarge it\n");
 		return;
