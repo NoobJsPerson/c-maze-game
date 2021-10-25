@@ -1,16 +1,11 @@
 #include <stdio.h>
-#ifdef _WIN32
-#include <windows.h>
-#elif defined(__unix__)
-#include <termios.h>
-#include <sys/ioctl.h>
-#endif
-#include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
 #ifdef __unix__
 #include <termios.h>
+#include <sys/ioctl.h>
 static struct termios old, new;
+struct winsize size;
 char getch()
 {
   char ch;
@@ -20,13 +15,24 @@ char getch()
   new.c_lflag &= ~ECHO; /* set echo mode */
   tcsetattr(0, TCSANOW, &new); /* use these new terminal i/o settings now */
   ch = getchar();
-  tcsetattr(0, TCSANOW, &old);
+  tcsetattr(0, TCSANOW, &old); /* set terminal i/o settings back to old */
   return ch;
+}
+void get_size(int *columns,int *rows){
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+	*columns = size.ws_col;
+	*rows = size.ws_row;
 }
 #elif defined(_WIN32)
 #include <conio.h>
+#include <windows.h>
+CONSOLE_SCREEN_BUFFER_INFO csbi;
+void get_size(int *columns,int *rows){
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    *columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    *rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+}
 #endif
-
 char randomChunk(){
 	int r = rand();
 	return r % 2 ? '#' : '-';
@@ -41,20 +47,8 @@ void generateRandomMap(char map[5][13]){
 void updateScene(int *coordinates, char map[5][13], char updateCode)
 {
 	int columns, rows;
-	#ifdef _WIN32
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-    	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    	columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    	rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-		printf("%i",columns);
-		printf("%i",rows);
-	#elif defined(__unix__)
-	struct winsize size;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-	columns = size.ws_col;
-	rows = size.ws_row;
-	#endif
-	if(columns < 1 || rows < 1)
+	get_size(&columns, &rows);
+	if(columns < 12 || rows < 4)
 	{
 		printf("Your terminal window is to small please enlarge it\n");
 		return;
@@ -145,7 +139,7 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
 			}
 		}
 	}
-	if(coordinates[0] == 0 && coordinates[1] == 0 || coordinates[0] == 0 && coordinates[1] == 11 || coordinates[0] == 4 && coordinates[1] == 0 || coordinates[0] == 4 && coordinates[1] == 11 )
+	if(updateCode == 'q' || coordinates[0] == 0 && coordinates[1] == 0 || coordinates[0] == 0 && coordinates[1] == 11 || coordinates[0] == 4 && coordinates[1] == 0 || coordinates[0] == 4 && coordinates[1] == 11 )
 	{
 		printf("\033[1;31mGame Over!\n\033[0mYour Score: %d",score);
 		printf("\nRestart: r, Leave: any other character\n");
