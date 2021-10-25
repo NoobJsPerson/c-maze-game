@@ -7,6 +7,20 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <termios.h>
+static struct termios old, new;
+char getch()
+{
+  char ch;
+  tcgetattr(0, &old); /* grab old terminal i/o settings */
+  new = old; /* make new settings same as old settings */
+  new.c_lflag &= ~ICANON; /* disable buffered i/o */
+  new.c_lflag &= ~ECHO; /* set echo mode */
+  tcsetattr(0, TCSANOW, &new); /* use these new terminal i/o settings now */
+  ch = getchar();
+  tcsetattr(0, TCSANOW, &old);
+  return ch;
+}
 char randomChunk(){
 	int r = rand();
 	return r % 2 ? '#' : '-';
@@ -154,7 +168,7 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
 		printf("%s", map[i]);
 		printf("\n");
 	}
-	scanf("%s",&action);
+	action = (char) getch();
 	updateScene(coordinates, map, action);
 }
 int main(int argc, char *argv[])
