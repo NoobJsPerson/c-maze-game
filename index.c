@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
 #ifdef __unix__
@@ -50,8 +51,11 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
 	get_size(&columns, &rows);
 	if(columns < 12 || rows < 4)
 	{
-		printf("Your terminal window is to small please enlarge it\n");
-		return;
+		printf("Your terminal window is too small please enlarge it\n");
+		while(1) {
+			get_size(&columns, &rows);
+			if(columns >= 12 && rows >= 4) return updateScene(coordinates, map, '0');
+		}
 	}
 	static int score;
 	static char direction;
@@ -171,7 +175,7 @@ void updateScene(int *coordinates, char map[5][13], char updateCode)
 		printf("%s", map[i]);
 		printf("\n");
 	}
-	action = (char) getch();
+	action = getch();
 	updateScene(coordinates, map, action);
 }
 int main(int argc, char *argv[])
