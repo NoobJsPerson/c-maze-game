@@ -9,15 +9,15 @@ static struct termios old, new;
 struct winsize size;
 char getch()
 {
-  char ch;
-  tcgetattr(0, &old); /* grab old terminal i/o settings */
-  new = old; /* make new settings same as old settings */
-  new.c_lflag &= ~ICANON; /* disable buffered i/o */
-  new.c_lflag &= ~ECHO; /* set echo mode */
-  tcsetattr(0, TCSANOW, &new); /* use these new terminal i/o settings now */
-  ch = getchar();
-  tcsetattr(0, TCSANOW, &old); /* set terminal i/o settings back to old */
-  return ch;
+	char ch;
+	tcgetattr(0, &old); /* grab old terminal i/o settings */
+	new = old; /* make new settings same as old settings */
+	new.c_lflag &= ~ICANON; /* disable buffered i/o */
+	new.c_lflag &= ~ECHO; /* set echo mode */
+	tcsetattr(0, TCSANOW, &new); /* use these new terminal i/o settings now */
+	ch = getchar();
+	tcsetattr(0, TCSANOW, &old); /* set terminal i/o settings back to old */
+	return ch;
 }
 void get_size(int *columns,int *rows){
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
